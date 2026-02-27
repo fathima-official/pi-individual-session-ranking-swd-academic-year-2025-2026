@@ -63,11 +63,10 @@ button {
 let sorted = [];
 let currentRank = 0;
 
-// CHANGE THIS if your CSV has different column headers
-const NAME_COLUMN = "Employee Name";   // change if needed
-const INTENSITY_COLUMN = "Case Intensity"; // change if needed
+const NAME_COLUMN = "Name of the Counsellor";
+const INTENSITY_COLUMN = "Case Intensity";
 
-Papa.parse("data.csv", {
+Papa.parse("./data.csv", {
     download: true,
     header: true,
     skipEmptyLines: true,
@@ -78,7 +77,7 @@ Papa.parse("data.csv", {
 
         data.forEach(row => {
 
-            if(row[INTENSITY_COLUMN] && 
+            if(row[INTENSITY_COLUMN] &&
                row[INTENSITY_COLUMN].toLowerCase() === "high") {
 
                 let name = row[NAME_COLUMN];
@@ -99,7 +98,7 @@ Papa.parse("data.csv", {
 function revealNext() {
 
     if(sorted.length === 0){
-        alert("Data is still loading. Please wait.");
+        alert("Data is still loading. Please wait 5 seconds and try again.");
         return;
     }
 
@@ -109,18 +108,19 @@ function revealNext() {
 
     let name = sorted[currentRank][0];
     let position = currentRank + 1;
+    let highCount = sorted[currentRank][1];
 
     let div = document.createElement("div");
 
     if(position === 1){
         div.className = "winner";
-        div.innerHTML = "🏆 WINNER: " + name + 
-                        "<br>High Cases: " + sorted[currentRank][1];
+        div.innerHTML = "🏆 WINNER: " + name +
+                        "<br>High Intensity Cases: " + highCount;
     } else {
         div.className = "rank";
-        div.innerHTML = "Rank " + position + 
-                        " : " + name + 
-                        " (High Cases: " + sorted[currentRank][1] + ")";
+        div.innerHTML = "Rank " + position +
+                        " : " + name +
+                        " (High Cases: " + highCount + ")";
     }
 
     document.getElementById("results").prepend(div);
