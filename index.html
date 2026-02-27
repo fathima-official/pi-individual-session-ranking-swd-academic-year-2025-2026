@@ -1,71 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Finale Ranking Reveal</title>
+<title>🏆 High Intensity Finale</title>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
 <style>
 body {
     background: black;
     color: white;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     text-align: center;
-    padding-top: 100px;
+    padding-top: 80px;
 }
-button {
-    padding: 15px 30px;
-    font-size: 18px;
-    cursor: pointer;
-}
-.rank {
-    font-size: 30px;
-    margin: 20px;
-}
-.winner {
+
+h1 {
     font-size: 40px;
+    margin-bottom: 30px;
+}
+
+button {
+    padding: 15px 35px;
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+}
+
+.rank {
+    font-size: 28px;
+    margin: 15px;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+.winner {
+    font-size: 42px;
+    margin-top: 30px;
     color: gold;
+    font-weight: bold;
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
 
 <body>
 
-<h1>🏆 High Intensity Finale</h1>
-<button onclick="revealNext()">Reveal Next Rank</button>
+<h1>🏆 High Intensity Finale Ranking</h1>
+
+<button onclick="revealNext()">Start / Reveal Next</button>
 
 <div id="results"></div>
 
 <script>
 
-// Example data (Replace later with Sheet data)
-let sorted = [
-    ["Rahul", 15],
-    ["Aisha", 12],
-    ["Meena", 9],
-    ["John", 6],
-    ["Sara", 4]
-];
+let sorted = [];
+let currentRank = 0;
 
-let currentRank = sorted.length - 1;
+// CHANGE THIS if your CSV has different column headers
+const NAME_COLUMN = "Employee Name";   // change if needed
+const INTENSITY_COLUMN = "Case Intensity"; // change if needed
+
+Papa.parse("data.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+
+        let data = results.data;
+        let counts = {};
+
+        data.forEach(row => {
+
+            if(row[INTENSITY_COLUMN] && 
+               row[INTENSITY_COLUMN].toLowerCase() === "high") {
+
+                let name = row[NAME_COLUMN];
+
+                if(name){
+                    counts[name] = (counts[name] || 0) + 1;
+                }
+            }
+        });
+
+        sorted = Object.entries(counts)
+            .sort((a, b) => b[1] - a[1]);
+
+        currentRank = sorted.length - 1;
+    }
+});
 
 function revealNext() {
-    if(currentRank >= 0) {
 
-        let name = sorted[currentRank][0];
-        let position = currentRank + 1;
-
-        let div = document.createElement("div");
-
-        if(position === 1){
-            div.className = "winner";
-            div.innerHTML = "🏆 WINNER: " + name;
-        } else {
-            div.className = "rank";
-            div.innerHTML = "Rank " + position + ": " + name;
-        }
-
-        document.getElementById("results").prepend(div);
-
-        currentRank--;
+    if(sorted.length === 0){
+        alert("Data is still loading. Please wait.");
+        return;
     }
+
+    if(currentRank < 0){
+        return;
+    }
+
+    let name = sorted[currentRank][0];
+    let position = currentRank + 1;
+
+    let div = document.createElement("div");
+
+    if(position === 1){
+        div.className = "winner";
+        div.innerHTML = "🏆 WINNER: " + name + 
+                        "<br>High Cases: " + sorted[currentRank][1];
+    } else {
+        div.className = "rank";
+        div.innerHTML = "Rank " + position + 
+                        " : " + name + 
+                        " (High Cases: " + sorted[currentRank][1] + ")";
+    }
+
+    document.getElementById("results").prepend(div);
+
+    currentRank--;
 }
 
 </script>
