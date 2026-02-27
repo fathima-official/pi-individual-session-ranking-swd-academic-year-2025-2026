@@ -1,8 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Finale Ranking Reveal</title>
+<style>
+body {
+    background: black;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding-top: 100px;
+}
+button {
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+}
+.rank {
+    font-size: 30px;
+    margin: 20px;
+}
+.winner {
+    font-size: 40px;
+    color: gold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🏆 High Intensity Finale</h1>
+<button onclick="revealNext()">Reveal Next Rank</button>
+
+<div id="results"></div>
+
+<script>
+
+// Example data (Replace later with Sheet data)
+let sorted = [
+    ["Rahul", 15],
+    ["Aisha", 12],
+    ["Meena", 9],
+    ["John", 6],
+    ["Sara", 4]
+];
+
 let currentRank = sorted.length - 1;
 
 function revealNext() {
-    if(currentRank >= 0){
-        showRank(sorted[currentRank]);
+    if(currentRank >= 0) {
+
+        let name = sorted[currentRank][0];
+        let position = currentRank + 1;
+
+        let div = document.createElement("div");
+
+        if(position === 1){
+            div.className = "winner";
+            div.innerHTML = "🏆 WINNER: " + name;
+        } else {
+            div.className = "rank";
+            div.innerHTML = "Rank " + position + ": " + name;
+        }
+
+        document.getElementById("results").prepend(div);
+
         currentRank--;
     }
 }
+
+</script>
+
+</body>
+</html>
