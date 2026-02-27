@@ -1,0 +1,8 @@
+let currentRank = sorted.length - 1;
+
+function revealNext() {
+    if(currentRank >= 0){
+        showRank(sorted[currentRank]);
+        currentRank--;
+    }
+}
