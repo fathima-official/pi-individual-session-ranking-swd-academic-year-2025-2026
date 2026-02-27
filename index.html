@@ -1,133 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>🏆 High Intensity Finale</title>
+  <title>High Intensity Final Ranking</title>
+  <style>
+    body {
+      font-family: "Times New Roman", Times, serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    h1 {
+      font-size: 42px;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
 
-<style>
-body {
-    background: black;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding-top: 80px;
-}
+    #nameBox {
+      font-size: 32px;
+      margin: 30px;
+      min-height: 60px;
+      transition: all 0.5s ease-in-out;
+    }
 
-h1 {
-    font-size: 40px;
-    margin-bottom: 30px;
-}
+    button {
+      padding: 12px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #00c6ff;
+      color: black;
+      font-weight: bold;
+      transition: 0.3s;
+    }
 
-button {
-    padding: 15px 35px;
-    font-size: 20px;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-}
+    button:hover {
+      background: #00e0ff;
+      transform: scale(1.05);
+    }
 
-.rank {
-    font-size: 28px;
-    margin: 15px;
-    opacity: 0;
-    animation: fadeIn 1s forwards;
-}
+    .final-card {
+      margin-top: 40px;
+      padding: 30px;
+      background: white;
+      color: black;
+      border-radius: 15px;
+      width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease-in-out;
+    }
 
-.winner {
-    font-size: 42px;
-    margin-top: 30px;
-    color: gold;
-    font-weight: bold;
-    opacity: 0;
-    animation: fadeIn 2s forwards;
-}
+    .winner-name {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
+    .badge {
+      display: inline-block;
+      padding: 10px 18px;
+      background: #ff4d4d;
+      color: white;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .trophy {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
 </head>
-
 <body>
 
-<h1>🏆 High Intensity Finale Ranking</h1>
+<h1>High Intensity Final Ranking</h1>
 
-<button onclick="revealNext()">Start / Reveal Next</button>
+<div id="nameBox">Click Start to Begin</div>
 
-<div id="results"></div>
+<button onclick="nextName()">Start / Reveal Next</button>
 
 <script>
+let data = [];
+let index = 0;
 
-let sorted = [];
-let currentRank = 0;
+// 🔁 Replace this with your Web App URL
+const sheetURL = "YOUR_WEB_APP_URL_HERE";
 
-const NAME_COLUMN = "Name of the Counsellor";
-const INTENSITY_COLUMN = "Case Intensity";
+fetch(sheetURL)
+  .then(res => res.json())
+  .then(result => {
+      // Sort descending
+      result.sort((a, b) => b.count - a.count);
 
-Papa.parse("./data.csv", {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
+      // ✅ Only Top 5
+      data = result.slice(0, 5);
+  });
 
-        let data = results.data;
-        let counts = {};
-
-        data.forEach(row => {
-
-            if(row[INTENSITY_COLUMN] &&
-               row[INTENSITY_COLUMN].toLowerCase() === "high") {
-
-                let name = row[NAME_COLUMN];
-
-                if(name){
-                    counts[name] = (counts[name] || 0) + 1;
-                }
-            }
-        });
-
-        sorted = Object.entries(counts)
-            .sort((a, b) => b[1] - a[1]);
-
-        currentRank = sorted.length - 1;
-    }
-});
-
-function revealNext() {
-
-    if(sorted.length === 0){
+function nextName() {
+    if (data.length === 0) {
         alert("Data is still loading. Please wait 5 seconds and try again.");
         return;
     }
 
-    if(currentRank < 0){
-        return;
+    if (index < data.length) {
+        document.getElementById("nameBox").innerHTML =
+          `<strong>Rank ${index + 1}</strong><br>${data[index].name}`;
+        index++;
+    } 
+    else {
+        showFinalWinner();
     }
-
-    let name = sorted[currentRank][0];
-    let position = currentRank + 1;
-    let highCount = sorted[currentRank][1];
-
-    let div = document.createElement("div");
-
-    if(position === 1){
-        div.className = "winner";
-        div.innerHTML = "🏆 WINNER: " + name +
-                        "<br>High Intensity Cases: " + highCount;
-    } else {
-        div.className = "rank";
-        div.innerHTML = "Rank " + position +
-                        " : " + name +
-                        " (High Cases: " + highCount + ")";
-    }
-
-    document.getElementById("results").prepend(div);
-
-    currentRank--;
 }
 
+function showFinalWinner() {
+    const winner = data[0];
+
+    document.body.innerHTML = `
+      <h1>🏆 Top Performer - High Intensity Cases</h1>
+
+      <div class="final-card">
+          <div class="trophy">🏆</div>
+          <div class="winner-name">${winner.name}</div>
+          <div class="badge">
+            ${winner.count} High Intensity Cases Handled
+          </div>
+      </div>
+    `;
+}
 </script>
 
 </body>
